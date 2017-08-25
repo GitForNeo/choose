@@ -40,6 +40,6 @@
 
 @interface choose : NSObject
 
-+ (NSArray *)choose:(NSString *)className;
++ (NSArray *)choose:(Class)aClass;
 
 @end

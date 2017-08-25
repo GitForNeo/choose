@@ -90,7 +90,7 @@ static void choose_(task_t task, void *baton, unsigned type, vm_range_t *ranges,
         
         uintptr_t * pointers = reinterpret_cast<uintptr_t *>(data);
 #ifdef __arm64__
-        Class isa = reinterpret_cast<Class>(pointers[0] & 0x1fffffff8);
+        Class isa = (__bridge Class)((void *)(pointers[0] & 0x1fffffff8));
 #else
         Class isa = reinterpret_cast<Class>(pointers[0]);
 #endif
@@ -105,13 +105,13 @@ static void choose_(task_t task, void *baton, unsigned type, vm_range_t *ranges,
 #endif
         if ((needed <= boundary && (needed + 15) / 16 * 16 != size) || (needed > boundary && (needed + 511) / 512 * 512 != size))
             continue;
-        choice->result_.insert(reinterpret_cast<id>(data));
+        choice->result_.insert((__bridge id)(data));
     }
 }
 
 @implementation choose
 
-+ (NSArray *)choose:(NSString *)className{
++ (NSArray *)choose:(Class)_class{
     vm_address_t * zones = NULL;
     unsigned size = 0;
     kern_return_t error = malloc_get_all_zones(0, &read_memory, &zones, &size);
@@ -122,7 +122,6 @@ static void choose_(task_t task, void *baton, unsigned type, vm_range_t *ranges,
     assert(classes != NULL);
     
     choice choice;
-    Class _class = NSClassFromString(className);
     
     for (size_t i = 0; i != number; ++i) {
         for (Class current = classes[i]; current != Nil; current = class_getSuperclass(current)) {
